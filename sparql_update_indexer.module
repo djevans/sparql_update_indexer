@@ -1,0 +1,60 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: david
+ * Date: 17/12/14
+ * Time: 20:29
+ */
+
+/**
+ * Implements hook_search_api_service_info().
+ */
+function sparql_update_indexer_search_api_service_info() {
+  $services['sparql_update_rdf_indexer_service'] = array(
+    'name' => 'RDF Indexer Service via SPARQL Update',
+    'description' => 'Indexes in RDF using the SPARQL 1.1 Update protocol',
+    'class' => 'SparqlUpdateIndexerService',
+  );
+  return $services;
+}
+
+/**
+ * Implements hook_search_api_alter_callback_info().
+ */
+function sparql_update_indexer_search_api_alter_callback_info() {
+  $callbacks['sparql_update_alter_entity_public'] = array(
+    'name' => t('Public entities'),
+    'description' => t('Only index entities which are publicly accessible.'),
+    'class' => 'SparqlUpdateIndexerAlterEntityPublic',
+  );
+  return $callbacks;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function sparql_update_indexer_form_search_api_admin_add_index_alter(array &$form, array &$form_state, $form_id) {
+  // Adds custom submit handler to automatically default the indexed fields to
+  // a minimal set of fields when an index is created. RDF indexer ignores the
+  // indexed fields, but Search API requires at least one field to be set.
+  $form['#submit'][] = 'sparql_update_indexer_form_search_api_admin_add_index_submit';
+}
+
+/**
+ * Custom submit handler for search_api_admin_add_index form.
+ */
+function sparql_update_indexer_form_search_api_admin_add_index_submit(array $form, array &$form_state) {
+  // Update index to include a minimal set of fields (language field).
+  $index = search_api_index_load($form_state['values']['machine_name']);
+  $options = array(
+    'fields' => array(
+      'search_api_language' => array('type' => 'string'),
+    ),
+  );
+  /**
+   * @return int|false
+   * SAVE_UPDATED on success, FALSE on failure, 0 if the fields already had
+   * the specified values.
+   */
+  $index->update(array('options' => $options));
+}

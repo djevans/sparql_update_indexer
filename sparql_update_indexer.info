@@ -1,0 +1,12 @@
+name = SPARQL Update Indexer
+description = Indexes entities with RDF stores supporting the SPARQL 1.1 Update protocol.
+package = Search API
+dependencies[] = libraries
+dependencies[] = easyrdf
+dependencies[] = entity
+dependencies[] = rdfx
+dependencies[] = search_api
+core = 7.x
+version = 0.1
+
+files[] = includes/SparqlUpdateIndexerService.inc
